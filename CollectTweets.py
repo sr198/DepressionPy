@@ -71,16 +71,18 @@ class StreamListener( tweepy.StreamListener ):
 		stopWords = set( stopwords.words('english'))
 		wordsToken = word_tokenize(tweet)
 
-		filterdTweet = ""
+		filteredTweet = ""
 		for w in wordsToken:
 			if w not in stopWords:
-				filterdTweet += w
+				filteredTweet += w
+				filteredTweet += " "
+
 
 		#write to a csv file
 		print("Found a matching tweet... writing to the file")
-		print( tweet + " Polarity: " + str( polarity ) )
+		print( filteredTweet + " Polarity: " + str( polarity ) )
 		#writer.writerow((status.text,status.user.location,status.coordinates,status.created_at,status.user.created_at))
-		writer.writerow((filterdTweet,polarity))
+		writer.writerow((filteredTweet,polarity))
 
 	#override on_error
 	def on_error( self, status_code ):
