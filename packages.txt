@@ -3,3 +3,4 @@ io
 csv
 re
 textblob
+nltk
