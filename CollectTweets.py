@@ -4,6 +4,8 @@ import csv
 import io
 from textblob import TextBlob
 import re
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 
 try:
     from twitter_keys import *
@@ -11,7 +13,7 @@ except Exception:
     pass
 
 outputFile = io.open( 'depression_tweets.csv', 'w', encoding='utf-8' )
-writer = csv.writer( outputFile, delimiter='\t' )
+writer = csv.writer( outputFile )
 
 #emoji pattern
 emoji_pattern = re.compile("["
@@ -20,6 +22,9 @@ emoji_pattern = re.compile("["
         u"\U0001F680-\U0001F6FF"  # transport & map symbols
         u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
                            "]+", flags=re.UNICODE)
+
+#alphabets pattern + space
+alphabets_pattern = re.compile("[^a-zA-Z ]")
 
 class StreamListener( tweepy.StreamListener ):
 
@@ -32,14 +37,8 @@ class StreamListener( tweepy.StreamListener ):
 			return
 
 		#remove URLs and user mentions and emojis
-		text = re.sub(r"(?:\@|https?\://)\S+", "", status.text)
-		tweet = emoji_pattern.sub(r'', text) # no emoji
-
-		#convert the string to lowercase
-		tweet = tweet.lower()
-
-		#remove punctuations and stop words
-
+		tweet = re.sub(r"(?:\@|https?\://)\S+", "", status.text)
+		tweet = emoji_pattern.sub(r'', tweet)
 
 		#textblob doesn't handle string less than 3 characters long
 		if len( tweet ) <  3:
@@ -62,11 +61,26 @@ class StreamListener( tweepy.StreamListener ):
 		if subjectivity < 0.25:
 			return
 
+		#remove non alphabet characters
+		tweet = alphabets_pattern.sub( '', tweet)
+
+		#convert the string to lowercase
+		tweet = tweet.lower()
+
+		#remove stop words
+		stopWords = set( stopwords.words('english'))
+		wordsToken = word_tokenize(tweet)
+
+		filterdTweet = ""
+		for w in wordsToken:
+			if w not in stopWords:
+				filterdTweet += w
+
 		#write to a csv file
 		print("Found a matching tweet... writing to the file")
 		print( tweet + " Polarity: " + str( polarity ) )
 		#writer.writerow((status.text,status.user.location,status.coordinates,status.created_at,status.user.created_at))
-		writer.writerow((tweet,polarity))
+		writer.writerow((filterdTweet,polarity))
 
 	#override on_error
 	def on_error( self, status_code ):
