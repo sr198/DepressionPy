@@ -1,11 +1,14 @@
 
-import twitter_keys
 import tweepy
 import csv
 import io
 from textblob import TextBlob
 import re
 
+try:
+    from twitter_keys import *
+except Exception:
+    pass
 
 outputFile = io.open( 'depression_tweets.csv', 'w', encoding='utf-8' )
 writer = csv.writer( outputFile, delimiter='\t' )
