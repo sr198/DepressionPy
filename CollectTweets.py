@@ -35,6 +35,12 @@ class StreamListener( tweepy.StreamListener ):
 		text = re.sub(r"(?:\@|https?\://)\S+", "", status.text)
 		tweet = emoji_pattern.sub(r'', text) # no emoji
 
+		#convert the string to lowercase
+		tweet = tweet.lower()
+
+		#remove punctuations and stop words
+
+
 		#textblob doesn't handle string less than 3 characters long
 		if len( tweet ) <  3:
 			return
@@ -50,6 +56,11 @@ class StreamListener( tweepy.StreamListener ):
 		#find polarity of the tweet text
 		sentiment = blob.sentiment
 		polarity = sentiment.polarity
+		subjectivity = sentiment.subjectivity
+
+		#discard tweets that are objective in nature
+		if subjectivity < 0.25:
+			return
 
 		#write to a csv file
 		print("Found a matching tweet... writing to the file")
