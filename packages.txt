@@ -1,0 +1,5 @@
+tweepy
+io
+csv
+re
+textblob
